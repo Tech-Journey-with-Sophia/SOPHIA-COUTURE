@@ -2,9 +2,14 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { LoginForm } from './LoginForm'
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const { error } = await searchParams
 
   if (user) {
     redirect('/')
@@ -24,7 +29,13 @@ export default async function LoginPage() {
       {/* Right: Form */}
       <div className="md:w-1/2 flex items-center justify-center p-8 sm:p-16 lg:p-24 bg-white h-screen overflow-y-auto">
         <div className="w-full max-w-sm">
-          <LoginForm />
+          <LoginForm
+            initialError={
+              error === 'oauth_callback'
+                ? 'Google sign-in could not be completed. Check the Google provider and Supabase redirect URL settings.'
+                : ''
+            }
+          />
         </div>
       </div>
     </div>

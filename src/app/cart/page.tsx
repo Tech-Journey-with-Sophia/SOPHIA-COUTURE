@@ -43,6 +43,7 @@ export default function CartPage() {
                       </div>
                       <p className="mt-2 text-[12px] text-[#333333]">${item.price.toFixed(2)} each</p>
                       {item.size && <p className="mt-2 text-[12px] text-black font-medium uppercase">Size: {item.size}</p>}
+                      {item.color && <p className="mt-2 text-[12px] text-black font-medium uppercase">Color: {item.color}</p>}
                     </div>
                     <div className="flex items-center justify-between mt-4">
                       <select

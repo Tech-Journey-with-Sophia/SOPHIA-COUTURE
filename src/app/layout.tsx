@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { CartSyncProvider } from "@/components/CartSyncProvider";
 
 export const metadata: Metadata = {
   title: "Sophia Couture | The Ultimate Outfits",
@@ -18,7 +19,7 @@ export default function RootLayout({
       <body className="antialiased min-h-screen flex flex-col selection:bg-black selection:text-white">
         <Navbar />
         <main className="flex-grow w-full">
-          {children}
+          <CartSyncProvider>{children}</CartSyncProvider>
         </main>
         <Footer />
       </body>

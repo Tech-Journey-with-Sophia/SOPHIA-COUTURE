@@ -152,6 +152,7 @@ export default function CheckoutPage() {
                     <p className="text-[12px] font-medium uppercase">{item.name}</p>
                     <p className="text-[12px] text-[#333333]">Qty: {item.quantity}</p>
                     {item.size && <p className="text-[12px] text-[#333333]">Size: {item.size}</p>}
+                    {item.color && <p className="text-[12px] text-[#333333]">Color: {item.color}</p>}
                   </div>
                 </div>
                 <p className="text-[12px] font-bold">${(item.price * item.quantity).toFixed(2)}</p>

@@ -21,7 +21,7 @@ CREATE TABLE orders (
   status TEXT NOT NULL DEFAULT 'Pending',
   subtotal NUMERIC(10, 2) NOT NULL,
   total NUMERIC(10, 2) NOT NULL,
-  customer_name TEXT NOT NULL,
+  customer_name TEXT NOT NULL, 
   customer_email TEXT NOT NULL,
   phone TEXT,
   address TEXT NOT NULL,
