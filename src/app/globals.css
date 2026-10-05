@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-carbon-ink: #000000;
+    --color-paper-white: #ffffff;
+    --color-soft-mist: #e5e7eb;
+    --color-warm-fog: #f0efe7;
+    --color-blush-sand: #f5ebd5;
+    --color-smoke-charcoal: #333333;
+    --color-onyx: #1d1d1d;
+    --color-stone-gray: #cccccc;
+    
+    --font-favorit: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  body {
+    background-color: var(--color-paper-white);
+    color: var(--color-carbon-ink);
+    font-family: var(--font-favorit);
+    letter-spacing: 0.025em;
+  }
+
+  /* Typography Scale */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
+  }
+}
+
+@layer components {
+  .btn-ghost {
+    @apply border border-black bg-transparent text-black text-[12px] font-medium rounded-[4px] px-6 py-1.5 transition-colors hover:bg-gray-50;
+  }
+  .btn-primary {
+    @apply bg-black text-white text-[12px] font-medium rounded-[4px] px-6 py-3 transition-opacity hover:opacity-90;
+  }
+  .btn-quick-add {
+    @apply bg-black text-white text-[12px] font-medium rounded-[4px] px-2.5 py-1 transition-opacity hover:opacity-90;
+  }
+  .input-field {
+    @apply border border-[#333333] rounded-[4px] bg-transparent text-black text-[12px] p-2.5 focus:outline-none focus:ring-1 focus:ring-black placeholder-[#cccccc];
+  }
+}
