@@ -21,7 +21,7 @@ export function LoginForm({ initialError = '' }: { initialError?: string }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' || session) {
         router.replace('/')
-        router.refresh() // This tells Next.js to update your server components
+        setTimeout(() => router.refresh(), 200) // Slight delay so cookies save before the header re-renders!
       }
     })
     return () => subscription.unsubscribe()

@@ -19,18 +19,8 @@ import { colors, fonts, tracking } from '@/theme';
  */
 export default function CartScreen() {
   const router = useRouter();
-  const { items, removeItem, updateQuantity, getTotal } = useCartStore();
+  const { items, removeItem, updateQuantity, getTotal, isLoading } = useCartStore();
   const { user, initializing } = useAuth();
-  const [hydrated, setHydrated] = useState(false);
-
-  // Zustand rehydrates from AsyncStorage after first render.
-  useEffect(() => {
-    const unsub = useCartStore.persist.onFinishHydration(() =>
-      setHydrated(true)
-    );
-    if (useCartStore.persist.hasHydrated()) setHydrated(true);
-    return unsub;
-  }, []);
 
   const handleCheckout = () => {
     if (!user) {
@@ -46,7 +36,7 @@ export default function CartScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>YOUR CART</Text>
 
-        {!hydrated ? null : items.length === 0 ? (
+        {isLoading ? null : items.length === 0 ? (
           <View style={styles.empty}>
             <Text style={styles.emptyText}>Your cart is currently empty.</Text>
             <PrimaryButton
