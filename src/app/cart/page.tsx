@@ -4,10 +4,15 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, getTotal } = useCartStore()
+  // We added fetchCart to this list so the page can call it!
+  const { items, removeItem, updateQuantity, getTotal, fetchCart } = useCartStore()
   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => setMounted(true), [])
+  // When the page loads, it asks Supabase for the latest cart items
+  useEffect(() => {
+    setMounted(true)
+    fetchCart() 
+  }, [fetchCart])
 
   if (!mounted) return null // Prevent hydration mismatch
 

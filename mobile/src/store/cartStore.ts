@@ -1,9 +1,10 @@
-import { create } from 'zustand'
-import { createClient } from '@/utils/supabase/client'
+import { create } from 'zustand';
+import { supabase } from '@/lib/supabase';
 
 export interface CartItem {
   id: string; // This will now be the actual UUID from Supabase
   product_id: string;
+  slug: string;
   name: string;
   price: number;
   image_url: string;
@@ -30,29 +31,22 @@ export const useCartStore = create<CartState>((set, get) => ({
   cartId: null,
   isLoading: false,
 
-  // 1. The master function that fetches data from Supabase
   fetchCart: async () => {
     set({ isLoading: true });
-    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // If not logged in, clear the cart
     if (!user) {
       set({ items: [], cartId: null, isLoading: false });
       return;
     }
 
-    // Step A: Find the user's cart (or create one if it doesn't exist)
     let { data: cart } = await supabase.from('carts').select('*').eq('user_id', user.id).single();
-    
     if (!cart) {
       const { data: newCart } = await supabase.from('carts').insert({ user_id: user.id }).select().single();
       cart = newCart;
     }
-
     if (!cart) return;
 
-    // Step B: Fetch the items AND perform a SQL JOIN to get the product details
     const { data: cartItems, error } = await supabase
       .from('cart_items')
       .select(`
@@ -65,7 +59,8 @@ export const useCartStore = create<CartState>((set, get) => ({
           name,
           price,
           image_url,
-          stock_quantity
+          stock_quantity,
+          slug
         )
       `)
       .eq('cart_id', cart.id);
@@ -76,10 +71,10 @@ export const useCartStore = create<CartState>((set, get) => ({
        return;
     }
 
-    // Step C: Map the complex relational data into the flat format your website expects
     const formattedItems = cartItems.map((item: any) => ({
       id: item.id,
       product_id: item.product_id,
+      slug: item.products.slug || item.product_id,
       name: item.products.name,
       price: item.products.price,
       image_url: item.products.image_url,
@@ -92,11 +87,8 @@ export const useCartStore = create<CartState>((set, get) => ({
     set({ items: formattedItems, cartId: cart.id, isLoading: false });
   },
 
-  // 2. Adding an item pushes to Supabase, then refreshes the state
   addItem: async (item) => {
     const { cartId, items, fetchCart } = get();
-    
-    // Ensure we have a cartId first
     if (!cartId) await fetchCart();
     const currentCartId = get().cartId;
     
@@ -105,9 +97,6 @@ export const useCartStore = create<CartState>((set, get) => ({
         return; 
     }
 
-    const supabase = createClient();
-    
-    // Check if this exact product & size is already in the cart
     const existing = items.find(i => i.product_id === item.product_id && i.size === item.size);
 
     if (existing) {
@@ -122,33 +111,31 @@ export const useCartStore = create<CartState>((set, get) => ({
         color: item.color
       });
     }
-
-    // Refresh the cart to instantly update the UI
     await get().fetchCart();
   },
 
-  // 3. Removing an item deletes it from Supabase
   removeItem: async (id) => {
-    const supabase = createClient();
     await supabase.from('cart_items').delete().eq('id', id);
     await get().fetchCart();
   },
 
-  // 4. Updating quantity pushes the new number to Supabase
   updateQuantity: async (id, quantity) => {
-    const supabase = createClient();
     await supabase.from('cart_items').update({ quantity }).eq('id', id);
     await get().fetchCart();
   },
 
-  // 5. Clearing the cart wipes all items for this cart_id
   clearCart: async () => {
     const currentCartId = get().cartId;
     if (!currentCartId) return;
-    const supabase = createClient();
     await supabase.from('cart_items').delete().eq('cart_id', currentCartId);
     await get().fetchCart();
   },
 
   getTotal: () => get().items.reduce((total, item) => total + item.price * item.quantity, 0),
 }));
+
+export function useCartCount(): number {
+  return useCartStore((state) =>
+    state.items.reduce((sum, item) => sum + item.quantity, 0)
+  );
+}

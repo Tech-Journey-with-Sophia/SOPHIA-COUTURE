@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -15,6 +15,17 @@ export function LoginForm({ initialError = '' }: { initialError?: string }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(initialError)
   const [message, setMessage] = useState('')
+
+  // We added this listener! It will instantly redirect the user when Google sends them back.
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || session) {
+        router.replace('/')
+        router.refresh() // This tells Next.js to update your server components
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [router, supabase])
 
   const handleGoogleLogin = async () => {
     setLoading(true)
@@ -80,7 +91,9 @@ export function LoginForm({ initialError = '' }: { initialError?: string }) {
       <h1 className="text-[30px] font-normal uppercase tracking-tight text-black mb-2">
         {mode === 'signup' ? 'Create Account' : 'Sign In'}
       </h1>
-      <p className="text-[12px] text-[#333333] mb-12">
+      
+      {/* We changed this from <p> to <div> to fix the clicking bug! */}
+      <div className="text-[12px] text-[#333333] mb-12">
         {mode === 'signup' ? 'Already have an account? ' : "Don't have an account yet? "}
         <button
           type="button"
@@ -93,7 +106,7 @@ export function LoginForm({ initialError = '' }: { initialError?: string }) {
         >
           {mode === 'signup' ? 'Sign In' : 'Sign Up'}
         </button>
-      </p>
+      </div>
 
       {error && <p role="alert" className="text-[12px] text-red-700">{error}</p>}
       {message && <p role="status" className="text-[12px] text-[#333333]">{message}</p>}
